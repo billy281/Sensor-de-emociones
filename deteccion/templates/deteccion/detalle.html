@@ -1,0 +1,63 @@
+{% extends "deteccion/base.html" %}
+{% block titulo %}{{ sesion }}{% endblock %}
+{% block head %}<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>{% endblock %}
+{% block contenido %}
+<p><a href="{% url 'deteccion:historial' %}">← Volver al historial</a></p>
+<h1>{{ sesion }}</h1>
+<p class="sub">{{ sesion.get_origen_display }} · inicio {{ sesion.inicio|date:"d/m/Y H:i:s" }}
+  {% if sesion.fin %} · fin {{ sesion.fin|date:"H:i:s" }}{% else %} · <span class="pill">activa</span>{% endif %}</p>
+
+{% if resumen %}
+<section class="tarjetas">
+  <div class="tarjeta stat"><span class="num">{{ resumen.0.etiqueta }}</span><span>Emoción predominante</span></div>
+  <div class="tarjeta stat"><span class="num">{{ sesion.registros.count }}</span><span>Registros</span></div>
+  <div class="tarjeta stat"><span class="num">{{ resumen|length }}</span><span>Emociones distintas</span></div>
+</section>
+<div class="graficos">
+  <div class="tarjeta"><h2>Distribución</h2><canvas id="gDist"></canvas></div>
+  <div class="tarjeta"><h2>Confianza en el tiempo</h2><canvas id="gLinea"></canvas></div>
+</div>
+<div class="tarjeta">
+  <h2>Últimos registros</h2>
+  <table class="tabla">
+    <thead><tr><th>Hora</th><th>Emoción</th><th>Confianza</th><th>Posición (x, y, w, h)</th></tr></thead>
+    <tbody>
+      {% for r in ultimos %}
+      <tr><td>{{ r.fecha|date:"H:i:s" }}</td><td><span class="chip emo-{{ r.emocion }}">{{ r.get_emocion_display }}</span></td>
+          <td>{% widthratio r.confianza 1 100 %}%</td><td>{{ r.rostro_x }}, {{ r.rostro_y }}, {{ r.rostro_ancho }}, {{ r.rostro_alto }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{{ datos_grafico|json_script:"datos" }}
+{% else %}
+<div class="tarjeta"><p>Esta sesión no tiene registros.</p></div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+const el = document.getElementById('datos');
+if (el && window.Chart) {
+  const d = JSON.parse(el.textContent);
+  const css = getComputedStyle(document.documentElement);
+  const color = e => css.getPropertyValue('--emo-' + e).trim() || '#888';
+  Chart.defaults.color = css.getPropertyValue('--texto-suave').trim();
+  new Chart(document.getElementById('gDist'), {
+    type: 'bar',
+    data: { labels: d.resumen.map(r => r.etiqueta),
+            datasets: [{ label: 'Registros', data: d.resumen.map(r => r.total),
+                         backgroundColor: d.resumen.map(r => color(r.emocion)), borderRadius: 4 }] },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+  });
+  new Chart(document.getElementById('gLinea'), {
+    type: 'scatter',
+    data: { datasets: Object.keys(d.etiquetas).map(e => ({
+      label: d.etiquetas[e], backgroundColor: color(e),
+      data: d.linea.filter(p => p.emocion === e).map(p => ({ x: (new Date(p.t) - new Date(d.linea[0].t)) / 1000, y: p.confianza * 100 }))
+    })).filter(ds => ds.data.length) },
+    options: { scales: { x: { title: { display: true, text: 'segundos' } },
+                         y: { min: 0, max: 100, title: { display: true, text: 'confianza %' } } } }
+  });
+}
+</script>
+{% endblock %}

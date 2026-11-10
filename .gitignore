@@ -1,0 +1,22 @@
+# Entornos virtuales (no se suben)
+venv/
+.venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*.part
+
+# Django / configuración local
+.env
+staticfiles/
+*.log
+db.sqlite3
+
+# IDE / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

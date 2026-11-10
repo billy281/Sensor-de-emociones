@@ -1,0 +1,52 @@
+{% extends "deteccion/base.html" %}
+{% load static %}
+{% block titulo %}Detección en vivo{% endblock %}
+{% block contenido %}
+<h1>Detección en vivo</h1>
+<p class="sub">El video de tu cámara se envía al servidor, se procesa con OpenCV y se muestra anotado.</p>
+
+<div class="vivo">
+  <div class="tarjeta video-caja">
+    <div class="pantalla">
+      <video id="video" autoplay playsinline muted></video>
+      <img id="salida" alt="Video procesado">
+      <div id="placeholder" class="placeholder">Cámara apagada</div>
+    </div>
+    <div class="controles">
+      <input id="nombre" type="text" placeholder="Nombre de la sesión (opcional)" maxlength="100">
+      <label class="check"><input id="guardar" type="checkbox" checked> Guardar en BD</label>
+      <button id="btnIniciar" class="btn primario">Encender cámara</button>
+      <button id="btnDetener" class="btn peligro" disabled>Detener</button>
+      <button id="btnCaptura" class="btn" disabled>Capturar imagen</button>
+    </div>
+    <div class="estado"><span id="estado">Listo</span><span id="fps">0 FPS</span></div>
+  </div>
+
+  <aside class="tarjeta panel">
+    <h2>Emoción detectada</h2>
+    <div id="principal" class="principal">—</div>
+    <div id="barras" class="barras">
+      {% for clave, etiqueta in etiquetas.items %}
+      <div class="barra-emo" data-emo="{{ clave }}">
+        <span class="nom">{{ etiqueta }}</span>
+        <div class="pista"><div class="relleno emo-{{ clave }}"></div></div>
+        <span class="val">0%</span>
+      </div>
+      {% endfor %}
+    </div>
+    <p class="nota">Rostros en escena: <b id="nRostros">0</b> · Registros guardados: <b id="nGuardados">0</b></p>
+    <a id="verSesion" class="btn oculto" href="#">Ver resumen de la sesión</a>
+  </aside>
+</div>
+{% csrf_token %}
+{% endblock %}
+{% block scripts %}
+<script>
+  window.URLS = {
+    iniciar: "{% url 'deteccion:api_iniciar' %}",
+    procesar: "{% url 'deteccion:api_procesar' %}",
+    finalizar: "/api/sesiones/ID/finalizar/"
+  };
+</script>
+<script src="{% static 'deteccion/js/camara.js' %}"></script>
+{% endblock %}

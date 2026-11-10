@@ -1,0 +1,32 @@
+{% extends "deteccion/base.html" %}
+{% block titulo %}Historial{% endblock %}
+{% block contenido %}
+<h1>Historial de sesiones</h1>
+<div class="tarjeta">
+{% if sesiones %}
+  <table class="tabla">
+    <thead><tr><th>#</th><th>Sesión</th><th>Origen</th><th>Inicio</th><th>Fin</th><th>Registros</th><th>Confianza media</th><th></th></tr></thead>
+    <tbody>
+    {% for s in sesiones %}
+      <tr>
+        <td>{{ s.pk }}</td>
+        <td><a href="{% url 'deteccion:detalle' s.pk %}">{{ s }}</a></td>
+        <td>{{ s.get_origen_display }}</td>
+        <td>{{ s.inicio|date:"d/m/Y H:i:s" }}</td>
+        <td>{% if s.fin %}{{ s.fin|date:"H:i:s" }}{% else %}<span class="pill">activa</span>{% endif %}</td>
+        <td>{{ s.n }}</td>
+        <td>{% if s.conf %}{% widthratio s.conf 1 100 %}%{% else %}—{% endif %}</td>
+        <td>
+          <form method="post" action="{% url 'deteccion:eliminar' s.pk %}" onsubmit="return confirm('¿Eliminar la sesión?')">
+            {% csrf_token %}<button class="btn mini peligro">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>Aún no hay sesiones. <a href="{% url 'deteccion:camara' %}">Inicia una detección</a>.</p>
+{% endif %}
+</div>
+{% endblock %}

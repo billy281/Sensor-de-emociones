@@ -1,0 +1,37 @@
+{% extends "deteccion/base.html" %}
+{% block titulo %}Cámara del servidor{% endblock %}
+{% block contenido %}
+<h1>Cámara del servidor (MJPEG)</h1>
+<p class="sub">Modo alternativo: el servidor Django abre la webcam con <code>cv2.VideoCapture</code>, procesa cada fotograma
+   y lo transmite como flujo MJPEG. Solo funciona cuando el servidor se ejecuta en el mismo equipo que tiene la cámara.</p>
+<div class="tarjeta video-caja">
+  <div class="pantalla">
+    <img id="stream" alt="Transmisión del servidor">
+    <div id="placeholder" class="placeholder">Transmisión detenida</div>
+  </div>
+  <div class="controles">
+    <label class="check"><input id="detectar" type="checkbox" checked> Detectar emociones</label>
+    <label class="check"><input id="guardar" type="checkbox"> Guardar en BD</label>
+    <button id="btnIniciar" class="btn primario">Iniciar transmisión</button>
+    <button id="btnDetener" class="btn peligro" disabled>Detener</button>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  const img = document.getElementById('stream');
+  const ph = document.getElementById('placeholder');
+  const bI = document.getElementById('btnIniciar'), bD = document.getElementById('btnDetener');
+  bI.onclick = () => {
+    const det = document.getElementById('detectar').checked ? 1 : 0;
+    const gua = document.getElementById('guardar').checked ? 1 : 0;
+    img.src = "{% url 'deteccion:stream' %}?detectar=" + det + "&guardar=" + gua + "&t=" + Date.now();
+    img.style.display = 'block'; ph.style.display = 'none';
+    bI.disabled = true; bD.disabled = false;
+  };
+  bD.onclick = () => {
+    img.src = ''; img.style.display = 'none'; ph.style.display = 'flex';
+    bI.disabled = false; bD.disabled = true;
+  };
+</script>
+{% endblock %}

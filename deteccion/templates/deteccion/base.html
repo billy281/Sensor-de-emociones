@@ -1,0 +1,28 @@
+{% load static %}<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}EmoVision{% endblock %} · Detección de emociones</title>
+  <link rel="stylesheet" href="{% static 'deteccion/css/estilos.css' %}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <header class="barra">
+    <a class="marca" href="{% url 'deteccion:inicio' %}"><span class="logo">◉</span> EmoVision</a>
+    {% with n=request.resolver_match.url_name %}
+    <nav>
+      <a href="{% url 'deteccion:inicio' %}" class="{% if n == 'inicio' %}activo{% endif %}">Inicio</a>
+      <a href="{% url 'deteccion:camara' %}" class="{% if n == 'camara' %}activo{% endif %}">Detección en vivo</a>
+      <a href="{% url 'deteccion:camara_servidor' %}" class="{% if n == 'camara_servidor' %}activo{% endif %}">Cámara del servidor</a>
+      <a href="{% url 'deteccion:historial' %}" class="{% if n == 'historial' or n == 'detalle' %}activo{% endif %}">Historial</a>
+    </nav>
+    {% endwith %}
+  </header>
+  <main class="contenedor">
+    {% block contenido %}{% endblock %}
+  </main>
+  <footer class="pie">Django · OpenCV · PostgreSQL — Práctica de visión por computador</footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
