@@ -2,7 +2,7 @@
 
 Aplicación web desarrollada con **Django** que captura video en tiempo real, detecta los rostros
 con **OpenCV** y clasifica la emoción de cada uno. Los resultados se dibujan directamente sobre el
-video y se almacenan en **PostgreSQL** para su consulta posterior.
+video y se almacenan en **PostgreSQL**.
 
 ## Funcionalidades
 
