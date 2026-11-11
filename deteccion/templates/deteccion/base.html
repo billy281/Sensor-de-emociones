@@ -13,7 +13,6 @@
     {% with n=request.resolver_match.url_name %}
     <nav>
       <a href="{% url 'deteccion:inicio' %}" class="{% if n == 'inicio' %}activo{% endif %}">Detección en vivo</a>
-      <a href="{% url 'deteccion:camara_servidor' %}" class="{% if n == 'camara_servidor' %}activo{% endif %}">Cámara del servidor</a>
       <a href="{% url 'deteccion:historial' %}" class="{% if n == 'historial' or n == 'detalle' %}activo{% endif %}">Historial</a>
     </nav>
     {% endwith %}

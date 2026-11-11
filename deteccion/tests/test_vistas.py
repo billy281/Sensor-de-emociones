@@ -26,7 +26,7 @@ class PaginasTests(TestCase):
         self.assertRedirects(self.client.get(reverse("deteccion:camara")), reverse("deteccion:inicio"))
 
     def test_paginas_cargan(self):
-        for nombre in ("inicio", "camara_servidor", "historial"):
+        for nombre in ("inicio", "historial"):
             with self.subTest(pagina=nombre):
                 r = self.client.get(reverse(f"deteccion:{nombre}"))
                 self.assertEqual(r.status_code, 200)
@@ -112,14 +112,3 @@ class ApiTests(TestCase):
         totales = {e["emocion"]: e["total"] for e in datos["por_emocion"]}
         self.assertEqual(totales, {"felicidad": 2, "tristeza": 1})
 
-
-class StreamTests(TestCase):
-    @override_settings(CAMERA_INDEX=99)
-    def test_stream_sin_camara_devuelve_mensaje(self):
-        detector, _ = crear_detector()
-        with mock.patch("deteccion.camara.obtener_detector", return_value=detector), \
-             mock.patch("deteccion.views.obtener_detector", return_value=detector):
-            r = self.client.get(reverse("deteccion:stream"))
-            self.assertEqual(r["Content-Type"], "multipart/x-mixed-replace; boundary=frame")
-            contenido = b"".join(r.streaming_content)
-        self.assertTrue(contenido.startswith(b"--frame\r\nContent-Type: image/jpeg"))

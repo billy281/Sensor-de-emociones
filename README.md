@@ -6,10 +6,8 @@ video y se almacenan en **PostgreSQL** para su consulta posterior.
 
 ## Funcionalidades
 
-- **Detección en vivo (cámara del navegador):** la webcam se captura con `getUserMedia`, cada
+- **Detección en vivo:** la webcam se captura con `getUserMedia`, cada
   fotograma se envía al servidor, se procesa con OpenCV y se devuelve anotado (≈10 FPS).
-- **Cámara del servidor (MJPEG):** modo alternativo en el que Django abre la webcam con
-  `cv2.VideoCapture` y transmite el video procesado como flujo `multipart/x-mixed-replace`.
 - **Detección de rostros:** clasificador en cascada de Haar (`haarcascade_frontalface_default.xml`).
 - **Reconocimiento de 8 emociones:** neutral, felicidad, sorpresa, tristeza, enojo, disgusto,
   miedo y desprecio, usando la red FER+ en formato ONNX con `cv2.dnn`.
@@ -25,7 +23,7 @@ video y se almacenan en **PostgreSQL** para su consulta posterior.
 | Componente | Tecnología |
 |---|---|
 | Backend | Python 3.10+ · Django 5.2 |
-| Visión por computador | OpenCV (`cv2`): `CascadeClassifier`, `dnn`, `VideoCapture` |
+| Visión por computador | OpenCV (`cv2`): `CascadeClassifier`, `dnn` |
 | Modelo de emociones | FER+ (`emotion-ferplus-8.onnx`, ONNX Model Zoo, licencia MIT) |
 | Base de datos | PostgreSQL |
 | Frontend | HTML, CSS, JavaScript, Chart.js |
@@ -105,9 +103,7 @@ El navegador pedirá permiso para usar la cámara (funciona en `localhost` o con
 1. **Detección en vivo (página principal):** al abrir la web la cámara se enciende automáticamente
    y se crea una sesión en la base de datos. Haz distintas expresiones y observa el recuadro y el
    panel lateral. Al cerrar la pestaña la sesión se finaliza sola.
-2. **Cámara del servidor:** al abrir la página, el servidor abre la cámara indicada en
-   `CAMERA_INDEX` y transmite el video procesado.
-3. **Historial:** lista de sesiones con número de registros y confianza media; el detalle muestra
+2. **Historial:** lista de sesiones con número de registros y confianza media; el detalle muestra
    la emoción predominante, la distribución y la evolución en el tiempo.
 
 ## Rutas principales
@@ -115,8 +111,6 @@ El navegador pedirá permiso para usar la cámara (funciona en `localhost` o con
 | Ruta | Descripción |
 |---|---|
 | `/` | Detección en vivo con la cámara del navegador (arranca sola) |
-| `/camara-servidor/` | Página de la transmisión MJPEG |
-| `/stream/` | Flujo MJPEG (`?detectar=0/1&guardar=0/1`) |
 | `/historial/` · `/historial/<id>/` | Historial y detalle de sesión |
 | `POST /api/sesiones/` | Inicia una sesión |
 | `POST /api/sesiones/<id>/finalizar/` | Finaliza una sesión |
@@ -126,8 +120,8 @@ El navegador pedirá permiso para usar la cámara (funciona en `localhost` o con
 
 ## Pruebas
 
-Pruebas automatizadas (21 casos: conversión de imágenes, detección de rostros, dibujo, API,
-límite de escritura en BD, sesiones, vistas y transmisión):
+Pruebas automatizadas (20 casos: conversión de imágenes, detección de rostros, dibujo, API,
+límite de escritura en BD, sesiones y vistas):
 ```bash
 python manage.py test
 ```
@@ -146,7 +140,6 @@ La prueba con el modelo real se ejecuta solo si el archivo ONNX está descargado
 | 7 | Salir del encuadre | Panel muestra “Sin rostro”, “Rostros: 0” |
 | 8 | Denegar el permiso de cámara | Mensaje “No se pudo acceder a la cámara” |
 | 9 | Cerrar la pestaña | Sesión finalizada y visible en Historial con sus registros |
-| 10 | Cámara del servidor | Video MJPEG anotado en la página |
 
 ## Estructura del proyecto
 
@@ -155,7 +148,6 @@ emociones_web/
 ├── config/                 # Configuración de Django (settings, urls, wsgi, asgi)
 ├── deteccion/              # Aplicación principal
 │   ├── detector.py         # Detección de rostros y emociones con OpenCV
-│   ├── camara.py           # Captura con cv2.VideoCapture y transmisión MJPEG
 │   ├── servicios.py        # Guardado de resultados en PostgreSQL
 │   ├── models.py           # SesionDeteccion, RegistroEmocion
 │   ├── views.py · urls.py · admin.py

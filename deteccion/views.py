@@ -1,13 +1,11 @@
 import json
 
-from django.conf import settings
 from django.db.models import Avg, Count
-from django.http import HttpResponseBadRequest, JsonResponse, StreamingHttpResponse
+from django.http import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
-from .camara import generar_stream
 from .detector import ETIQUETAS, ModeloNoEncontrado, a_data_url, decodificar_data_url, obtener_detector
 from .models import RegistroEmocion, SesionDeteccion
 from .servicios import guardar_resultados
@@ -23,10 +21,6 @@ def inicio(request):
 
 def camara_navegador(request):
     return redirect("deteccion:inicio")
-
-
-def camara_servidor(request):
-    return render(request, "deteccion/camara_servidor.html")
 
 
 def historial(request):
@@ -65,30 +59,7 @@ def eliminar_sesion(request, pk):
 
 
 # ---------------------------------------------------------------------- #
-# Transmisión MJPEG desde la cámara del servidor
-# ---------------------------------------------------------------------- #
-@require_GET
-def stream_servidor(request):
-    detectar = request.GET.get("detectar", "1") != "0"
-    sesion = None
-    if request.GET.get("guardar") == "1":
-        sesion = SesionDeteccion.objects.create(
-            origen=SesionDeteccion.ORIGEN_SERVIDOR, nombre=request.GET.get("nombre", "")[:100]
-        )
-    try:
-        obtener_detector()
-    except ModeloNoEncontrado:
-        detectar = False
-    respuesta = StreamingHttpResponse(
-        generar_stream(settings.CAMERA_INDEX, sesion=sesion, detectar=detectar),
-        content_type="multipart/x-mixed-replace; boundary=frame",
-    )
-    respuesta["Cache-Control"] = "no-cache"
-    return respuesta
-
-
-# ---------------------------------------------------------------------- #
-# API JSON (usada por la cámara del navegador)
+# API JSON (usada por la página de detección)
 # ---------------------------------------------------------------------- #
 def _leer_json(request):
     try:

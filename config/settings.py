@@ -84,7 +84,5 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 
 # Parámetros del detector
 EMOTION_MODEL_PATH = BASE_DIR / "deteccion" / "ml_models" / "emotion-ferplus-8.onnx"
-# Índice de la cámara usada en el modo "cámara del servidor"
-CAMERA_INDEX = int(os.getenv("CAMERA_INDEX", "0"))
 # Segundos mínimos entre registros guardados en la BD por sesión
 INTERVALO_REGISTRO_SEG = float(os.getenv("INTERVALO_REGISTRO_SEG", "1.0"))
