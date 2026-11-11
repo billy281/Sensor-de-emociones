@@ -89,8 +89,18 @@ class DetectorTests(SimpleTestCase):
         self.assertGreater(r.brillo, 45)
 
     def test_a_dict(self):
-        r = ResultadoRostro(1, 2, 3, 4, "miedo", 0.5, {"miedo": 0.5})
-        self.assertEqual(r.a_dict()["etiqueta"], "Miedo")
+        r = ResultadoRostro(1, 2, 3, 4, "tristeza", 0.5, {"tristeza": 0.5})
+        self.assertEqual(r.a_dict()["etiqueta"], "Tristeza")
+
+    def test_solo_cinco_emociones(self):
+        # aunque la red diga "miedo", la app elige entre las 5 emociones activas
+        detector, red = crear_detector("miedo")
+        red.salida[0, 1] = 2.0  # felicidad es la siguiente más probable
+        emocion, _, probs = detector.clasificar_emocion(np.zeros((80, 80), dtype=np.uint8))
+        self.assertEqual(emocion, "felicidad")
+        self.assertEqual(set(probs), set(EMOCIONES))
+        self.assertEqual(len(EMOCIONES), 5)
+        self.assertAlmostEqual(sum(probs.values()), 1.0, places=3)
 
 
 @unittest.skipUnless(settings.EMOTION_MODEL_PATH.exists(), "Modelo FER+ no descargado")

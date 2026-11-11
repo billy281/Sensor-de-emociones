@@ -14,8 +14,14 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-# Orden de salida del modelo FER+ (emotion-ferplus-8.onnx)
-EMOCIONES = ["neutral", "felicidad", "sorpresa", "tristeza", "enojo", "disgusto", "miedo", "desprecio"]
+# Orden de salida del modelo FER+ (emotion-ferplus-8.onnx): siempre devuelve 8 valores
+EMOCIONES_MODELO = ["neutral", "felicidad", "sorpresa", "tristeza", "enojo", "disgusto", "miedo", "desprecio"]
+
+# Emociones que reconoce la aplicación. Miedo, disgusto y desprecio se descartan
+# porque el modelo las distingue mal (tuvo pocos ejemplos al entrenarse); la
+# probabilidad se reparte solo entre estas cinco.
+EMOCIONES = ["neutral", "felicidad", "sorpresa", "tristeza", "enojo"]
+_INDICES = [EMOCIONES_MODELO.index(e) for e in EMOCIONES]
 
 ETIQUETAS = {
     "neutral": "Neutral",
@@ -23,9 +29,6 @@ ETIQUETAS = {
     "sorpresa": "Sorpresa",
     "tristeza": "Tristeza",
     "enojo": "Enojo",
-    "disgusto": "Disgusto",
-    "miedo": "Miedo",
-    "desprecio": "Desprecio",
 }
 
 # Colores en formato BGR (OpenCV)
@@ -35,9 +38,6 @@ COLORES = {
     "sorpresa": (255, 191, 0),
     "tristeza": (200, 100, 30),
     "enojo": (40, 40, 230),
-    "disgusto": (60, 160, 60),
-    "miedo": (180, 80, 160),
-    "desprecio": (90, 120, 160),
 }
 
 
@@ -132,7 +132,7 @@ class DetectorEmociones:
             blob = imagen.astype(np.float32).reshape(1, 1, self.TAM_ENTRADA, self.TAM_ENTRADA)
             with self._candado:
                 self.red.setInput(blob)
-                salida = self.red.forward().flatten()
+                salida = self.red.forward().flatten()[_INDICES]
             exp = np.exp(salida - np.max(salida))  # softmax
             probs += exp / exp.sum()
         probs /= 2

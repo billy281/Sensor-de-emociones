@@ -3,7 +3,7 @@
   --texto: #1c2130; --texto-suave: #5d6578; --primario: #4f46e5; --primario-txt: #fff;
   --peligro: #dc2626; --radio: 12px;
   --emo-neutral: #9ca3af; --emo-felicidad: #f5b301; --emo-sorpresa: #0ea5e9; --emo-tristeza: #2563eb;
-  --emo-enojo: #e11d48; --emo-disgusto: #16a34a; --emo-miedo: #9333ea; --emo-desprecio: #a16207;
+  --emo-enojo: #e11d48;
 }
 @media (prefers-color-scheme: dark) {
   :root { --fondo: #0f1220; --superficie: #181c2e; --borde: #2a3048; --texto: #e7e9f2; --texto-suave: #9aa1b8; --primario: #6d66f5; }
@@ -78,8 +78,7 @@ nav a.activo { background: var(--primario); color: var(--primario-txt); }
 /* colores por emoción */
 .emo-neutral   { --c: var(--emo-neutral); }   .emo-felicidad { --c: var(--emo-felicidad); }
 .emo-sorpresa  { --c: var(--emo-sorpresa); }  .emo-tristeza  { --c: var(--emo-tristeza); }
-.emo-enojo     { --c: var(--emo-enojo); }     .emo-disgusto  { --c: var(--emo-disgusto); }
-.emo-miedo     { --c: var(--emo-miedo); }     .emo-desprecio { --c: var(--emo-desprecio); }
+.emo-enojo     { --c: var(--emo-enojo); }
 .relleno[class*=emo-], .chip[class*=emo-] { background: var(--c); }
 .principal[class*=emo-] { border-left-color: var(--c); }
 .aviso { background: #f59e0b22; border: 1px solid #f59e0b; color: var(--texto); padding: 8px 12px; border-radius: 8px; font-size: .9rem; margin: 0 0 14px; }

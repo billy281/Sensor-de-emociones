@@ -9,8 +9,9 @@ video y se almacenan en **PostgreSQL** para su consulta posterior.
 - **Detección en vivo:** la webcam se captura con `getUserMedia`, cada
   fotograma se envía al servidor, se procesa con OpenCV y se devuelve anotado (≈10 FPS).
 - **Detección de rostros:** clasificador en cascada de Haar (`haarcascade_frontalface_default.xml`).
-- **Reconocimiento de 8 emociones:** neutral, felicidad, sorpresa, tristeza, enojo, disgusto,
-  miedo y desprecio, usando la red FER+ en formato ONNX con `cv2.dnn`.
+- **Reconocimiento de 5 emociones:** neutral, felicidad, sorpresa, tristeza y enojo, usando la red
+  FER+ en formato ONNX con `cv2.dnn`. El modelo también calcula miedo, disgusto y desprecio, pero
+  se descartan porque los distingue con poca fiabilidad; la probabilidad se reparte entre las cinco.
 - **Predicciones estables:** cada rostro se clasifica junto con su reflejo horizontal (se promedian
   ambas lecturas) y se sigue entre fotogramas con una media móvil exponencial, de modo que un
   parpadeo o una transición entre gestos no hace "saltar" la emoción mostrada.
@@ -20,7 +21,7 @@ video y se almacenan en **PostgreSQL** para su consulta posterior.
   panel para que el usuario se ilumine de frente.
 - **Resultados sobre el video:** recuadro y etiqueta con el color de cada emoción, porcentaje de
   confianza, barra de confianza y contador de rostros (`cv2.rectangle`, `cv2.putText`).
-- **Panel en tiempo real:** emoción principal, probabilidades de las 8 emociones, FPS.
+- **Panel en tiempo real:** emoción principal, probabilidades de las 5 emociones, FPS.
 - **Sesiones e historial:** cada sesión se guarda en PostgreSQL (máx. un registro por segundo y
   rostro); el historial muestra resumen, emoción predominante y gráficos (Chart.js).
 - **Panel de administración** de Django.

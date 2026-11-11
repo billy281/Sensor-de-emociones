@@ -55,9 +55,6 @@ class RegistroEmocion(models.Model):
         ("sorpresa", "Sorpresa"),
         ("tristeza", "Tristeza"),
         ("enojo", "Enojo"),
-        ("disgusto", "Disgusto"),
-        ("miedo", "Miedo"),
-        ("desprecio", "Desprecio"),
     ]
 
     sesion = models.ForeignKey(SesionDeteccion, on_delete=models.CASCADE, related_name="registros")
