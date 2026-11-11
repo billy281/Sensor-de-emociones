@@ -2,24 +2,16 @@
 {% load static %}
 {% block titulo %}Detección en vivo{% endblock %}
 {% block contenido %}
-<h1>Detección en vivo</h1>
-<p class="sub">El video de tu cámara se envía al servidor, se procesa con OpenCV y se muestra anotado.</p>
+<h1>Detección de emociones</h1>
 
 <div class="vivo">
   <div class="tarjeta video-caja">
     <div class="pantalla">
       <video id="video" autoplay playsinline muted></video>
       <img id="salida" alt="Video procesado">
-      <div id="placeholder" class="placeholder">Cámara apagada</div>
+      <div id="placeholder" class="placeholder">Encendiendo cámara…</div>
     </div>
-    <div class="controles">
-      <input id="nombre" type="text" placeholder="Nombre de la sesión (opcional)" maxlength="100">
-      <label class="check"><input id="guardar" type="checkbox" checked> Guardar en BD</label>
-      <button id="btnIniciar" class="btn primario">Encender cámara</button>
-      <button id="btnDetener" class="btn peligro" disabled>Detener</button>
-      <button id="btnCaptura" class="btn" disabled>Capturar imagen</button>
-    </div>
-    <div class="estado"><span id="estado">Listo</span><span id="fps">0 FPS</span></div>
+    <div class="estado"><span id="estado">Iniciando…</span><span id="fps">0 FPS</span></div>
   </div>
 
   <aside class="tarjeta panel">
@@ -35,7 +27,6 @@
       {% endfor %}
     </div>
     <p class="nota">Rostros en escena: <b id="nRostros">0</b> · Registros guardados: <b id="nGuardados">0</b></p>
-    <a id="verSesion" class="btn oculto" href="#">Ver resumen de la sesión</a>
   </aside>
 </div>
 {% csrf_token %}

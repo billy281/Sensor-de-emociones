@@ -17,16 +17,12 @@ from .servicios import guardar_resultados
 # Páginas
 # ---------------------------------------------------------------------- #
 def inicio(request):
-    contexto = {
-        "total_sesiones": SesionDeteccion.objects.count(),
-        "total_registros": RegistroEmocion.objects.count(),
-        "ultimas_sesiones": SesionDeteccion.objects.annotate(n=Count("registros"))[:5],
-    }
-    return render(request, "deteccion/inicio.html", contexto)
+    """Página principal: la detección arranca sola al abrir la web."""
+    return render(request, "deteccion/camara.html", {"etiquetas": ETIQUETAS})
 
 
 def camara_navegador(request):
-    return render(request, "deteccion/camara.html", {"etiquetas": ETIQUETAS})
+    return redirect("deteccion:inicio")
 
 
 def camara_servidor(request):

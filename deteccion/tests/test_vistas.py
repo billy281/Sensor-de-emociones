@@ -16,8 +16,17 @@ def post_json(client, url, datos=None):
 
 
 class PaginasTests(TestCase):
+    def test_inicio_muestra_deteccion_sin_botones(self):
+        r = self.client.get(reverse("deteccion:inicio"))
+        self.assertContains(r, 'id="salida"')
+        self.assertNotContains(r, "<button")
+        self.assertNotContains(r, "Cómo funciona")
+
+    def test_ruta_camara_redirige_al_inicio(self):
+        self.assertRedirects(self.client.get(reverse("deteccion:camara")), reverse("deteccion:inicio"))
+
     def test_paginas_cargan(self):
-        for nombre in ("inicio", "camara", "camara_servidor", "historial"):
+        for nombre in ("inicio", "camara_servidor", "historial"):
             with self.subTest(pagina=nombre):
                 r = self.client.get(reverse(f"deteccion:{nombre}"))
                 self.assertEqual(r.status_code, 200)

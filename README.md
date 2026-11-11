@@ -18,7 +18,7 @@ video y se almacenan en **PostgreSQL** para su consulta posterior.
 - **Panel en tiempo real:** emoción principal, probabilidades de las 8 emociones, FPS.
 - **Sesiones e historial:** cada sesión se guarda en PostgreSQL (máx. un registro por segundo y
   rostro); el historial muestra resumen, emoción predominante y gráficos (Chart.js).
-- **Captura de imagen** del fotograma anotado y **panel de administración** de Django.
+- **Panel de administración** de Django.
 
 ## Tecnologías
 
@@ -97,15 +97,15 @@ python manage.py migrate
 python manage.py createsuperuser   # opcional, para /admin
 python manage.py runserver
 ```
-Abre <http://127.0.0.1:8000/> y entra a **Detección en vivo**. El navegador pedirá permiso para
-usar la cámara (funciona en `localhost` o con HTTPS).
+Abre <http://127.0.0.1:8000/>: la cámara se enciende sola y la detección empieza de inmediato.
+El navegador pedirá permiso para usar la cámara (funciona en `localhost` o con HTTPS).
 
 ## Uso
 
-1. **Detección en vivo:** escribe un nombre de sesión (opcional), deja marcado *Guardar en BD* y
-   pulsa **Encender cámara**. Haz distintas expresiones y observa el recuadro y el panel lateral.
-   Pulsa **Detener** y luego **Ver resumen de la sesión**.
-2. **Cámara del servidor:** pulsa **Iniciar transmisión**; el servidor abre la cámara indicada en
+1. **Detección en vivo (página principal):** al abrir la web la cámara se enciende automáticamente
+   y se crea una sesión en la base de datos. Haz distintas expresiones y observa el recuadro y el
+   panel lateral. Al cerrar la pestaña la sesión se finaliza sola.
+2. **Cámara del servidor:** al abrir la página, el servidor abre la cámara indicada en
    `CAMERA_INDEX` y transmite el video procesado.
 3. **Historial:** lista de sesiones con número de registros y confianza media; el detalle muestra
    la emoción predominante, la distribución y la evolución en el tiempo.
@@ -114,8 +114,7 @@ usar la cámara (funciona en `localhost` o con HTTPS).
 
 | Ruta | Descripción |
 |---|---|
-| `/` | Inicio y estadísticas |
-| `/camara/` | Detección en vivo con la cámara del navegador |
+| `/` | Detección en vivo con la cámara del navegador (arranca sola) |
 | `/camara-servidor/` | Página de la transmisión MJPEG |
 | `/stream/` | Flujo MJPEG (`?detectar=0/1&guardar=0/1`) |
 | `/historial/` · `/historial/<id>/` | Historial y detalle de sesión |
@@ -127,7 +126,7 @@ usar la cámara (funciona en `localhost` o con HTTPS).
 
 ## Pruebas
 
-Pruebas automatizadas (19 casos: conversión de imágenes, detección de rostros, dibujo, API,
+Pruebas automatizadas (21 casos: conversión de imágenes, detección de rostros, dibujo, API,
 límite de escritura en BD, sesiones, vistas y transmisión):
 ```bash
 python manage.py test
@@ -138,7 +137,7 @@ La prueba con el modelo real se ejecuta solo si el archivo ONNX está descargado
 
 | # | Caso | Resultado esperado |
 |---|---|---|
-| 1 | Encender la cámara y mirar de frente | Recuadro sobre el rostro con emoción y % |
+| 1 | Abrir la web y mirar de frente | Recuadro sobre el rostro con emoción y % |
 | 2 | Sonreír ampliamente | Emoción *Felicidad* con alta confianza |
 | 3 | Abrir los ojos y la boca | Emoción *Sorpresa* |
 | 4 | Expresión seria | Emoción *Neutral* |
@@ -146,10 +145,8 @@ La prueba con el modelo real se ejecuta solo si el archivo ONNX está descargado
 | 6 | Dos personas frente a la cámara | Dos recuadros, contador “Rostros: 2” |
 | 7 | Salir del encuadre | Panel muestra “Sin rostro”, “Rostros: 0” |
 | 8 | Denegar el permiso de cámara | Mensaje “No se pudo acceder a la cámara” |
-| 9 | Detener la sesión con *Guardar en BD* | Sesión visible en Historial con sus registros |
-| 10 | Iniciar sin *Guardar en BD* | La detección funciona pero no se crean registros |
-| 11 | Capturar imagen | Se descarga el JPG con las anotaciones |
-| 12 | Cámara del servidor | Video MJPEG anotado en la página |
+| 9 | Cerrar la pestaña | Sesión finalizada y visible en Historial con sus registros |
+| 10 | Cámara del servidor | Video MJPEG anotado en la página |
 
 ## Estructura del proyecto
 
