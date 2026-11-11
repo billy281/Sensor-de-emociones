@@ -6,7 +6,14 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
-from .detector import ETIQUETAS, ModeloNoEncontrado, a_data_url, decodificar_data_url, obtener_detector
+from .detector import (
+    ETIQUETAS,
+    ModeloNoEncontrado,
+    a_data_url,
+    decodificar_data_url,
+    obtener_detector,
+    obtener_suavizador,
+)
 from .models import RegistroEmocion, SesionDeteccion
 from .servicios import guardar_resultados
 
@@ -103,7 +110,8 @@ def api_procesar_fotograma(request):
     except ModeloNoEncontrado as exc:
         return JsonResponse({"error": str(exc)}, status=503)
 
-    anotado, resultados = detector.procesar(fotograma)
+    suavizador = obtener_suavizador(str(datos.get("cliente", ""))[:64])
+    anotado, resultados = detector.procesar(fotograma, suavizador)
 
     guardados = 0
     sesion_id = datos.get("sesion_id")

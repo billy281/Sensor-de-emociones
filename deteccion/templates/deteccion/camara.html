@@ -17,6 +17,7 @@
   <aside class="tarjeta panel">
     <h2>Emoción detectada</h2>
     <div id="principal" class="principal">—</div>
+    <p id="aviso" class="aviso oculto">💡 Hay poca luz: ilumina tu rostro de frente (lámpara o ventana delante, no detrás) para que la emoción se detecte mejor.</p>
     <div id="barras" class="barras">
       {% for clave, etiqueta in etiquetas.items %}
       <div class="barra-emo" data-emo="{{ clave }}">

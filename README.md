@@ -11,6 +11,13 @@ video y se almacenan en **PostgreSQL** para su consulta posterior.
 - **Detección de rostros:** clasificador en cascada de Haar (`haarcascade_frontalface_default.xml`).
 - **Reconocimiento de 8 emociones:** neutral, felicidad, sorpresa, tristeza, enojo, disgusto,
   miedo y desprecio, usando la red FER+ en formato ONNX con `cv2.dnn`.
+- **Predicciones estables:** cada rostro se clasifica junto con su reflejo horizontal (se promedian
+  ambas lecturas) y se sigue entre fotogramas con una media móvil exponencial, de modo que un
+  parpadeo o una transición entre gestos no hace "saltar" la emoción mostrada.
+- **Filtrado de detecciones:** se eliminan los recuadros duplicados sobre una misma cara y las
+  detecciones falsas que aparecen en un solo fotograma (sombras o zonas oscuras del fondo).
+- **Aviso de poca luz:** si el rostro está demasiado oscuro, se muestra un aviso en el video y en el
+  panel para que el usuario se ilumine de frente.
 - **Resultados sobre el video:** recuadro y etiqueta con el color de cada emoción, porcentaje de
   confianza, barra de confianza y contador de rostros (`cv2.rectangle`, `cv2.putText`).
 - **Panel en tiempo real:** emoción principal, probabilidades de las 8 emociones, FPS.
@@ -37,7 +44,8 @@ Webcam ─► Navegador (canvas → JPEG base64) ─► POST /api/procesar/
                          ▼
      OpenCV: escala de grises + equalizeHist
           ─► CascadeClassifier.detectMultiScale  (rostros)
-          ─► recorte 64×64 ─► cv2.dnn FER+ ─► softmax (emoción + confianza)
+          ─► recorte 64×64 (+ reflejo) ─► cv2.dnn FER+ ─► softmax
+          ─► suavizado temporal por rostro (emoción + confianza)
           ─► cv2.rectangle / cv2.putText          (anotación)
           ─► PostgreSQL (RegistroEmocion)
                          │
@@ -120,8 +128,9 @@ El navegador pedirá permiso para usar la cámara (funciona en `localhost` o con
 
 ## Pruebas
 
-Pruebas automatizadas (20 casos: conversión de imágenes, detección de rostros, dibujo, API,
-límite de escritura en BD, sesiones y vistas):
+Pruebas automatizadas (30 casos: conversión de imágenes, detección de rostros, dibujo, API,
+límite de escritura en BD, sesiones, vistas, suavizado temporal, recuadros duplicados, aviso de
+poca luz y reconocimiento de una sonrisa con poca luz, contraluz, ruido y baja resolución):
 ```bash
 python manage.py test
 ```
@@ -137,9 +146,10 @@ La prueba con el modelo real se ejecuta solo si el archivo ONNX está descargado
 | 4 | Expresión seria | Emoción *Neutral* |
 | 5 | Fruncir el ceño | *Enojo* o *Tristeza* |
 | 6 | Dos personas frente a la cámara | Dos recuadros, contador “Rostros: 2” |
-| 7 | Salir del encuadre | Panel muestra “Sin rostro”, “Rostros: 0” |
-| 8 | Denegar el permiso de cámara | Mensaje “No se pudo acceder a la cámara” |
-| 9 | Cerrar la pestaña | Sesión finalizada y visible en Historial con sus registros |
+| 7 | Apagar la luz del cuarto | Aviso naranja “Poca luz: ilumina tu rostro de frente” |
+| 8 | Salir del encuadre | Panel muestra “Sin rostro”, “Rostros: 0” |
+| 9 | Denegar el permiso de cámara | Mensaje “No se pudo acceder a la cámara” |
+| 10 | Cerrar la pestaña | Sesión finalizada y visible en Historial con sus registros |
 
 ## Estructura del proyecto
 

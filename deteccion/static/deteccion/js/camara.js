@@ -7,6 +7,8 @@
   const lienzo = document.createElement('canvas');
   const ctx = lienzo.getContext('2d');
   const ANCHO = 640;
+  // identificador de esta pestaña: el servidor suaviza las emociones por cliente
+  const cliente = Math.random().toString(36).slice(2) + Date.now().toString(36);
 
   let activo = false, sesionId = null, guardados = 0;
   let cuadros = 0, tUltimo = performance.now();
@@ -59,7 +61,7 @@
       ctx.restore();
       const imagen = lienzo.toDataURL('image/jpeg', 0.7);
       try {
-        const r = await post(URLS.procesar, { imagen, sesion_id: sesionId });
+        const r = await post(URLS.procesar, { imagen, sesion_id: sesionId, cliente });
         if (r.imagen) salida.src = r.imagen;
         actualizarPanel(r.rostros);
         guardados += r.guardados || 0;
@@ -88,6 +90,7 @@
     const principal = $('principal');
     principal.className = 'principal' + (r ? ' emo-' + r.emocion : '');
     principal.textContent = r ? `${r.etiqueta} · ${Math.round(r.confianza * 100)}%` : 'Sin rostro';
+    $('aviso').classList.toggle('oculto', !(r && r.brillo !== null && r.brillo < 45));
     document.querySelectorAll('.barra-emo').forEach(fila => {
       const p = r ? (r.probabilidades[fila.dataset.emo] || 0) : 0;
       fila.querySelector('.relleno').style.width = (p * 100) + '%';

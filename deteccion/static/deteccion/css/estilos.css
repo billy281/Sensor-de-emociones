@@ -82,3 +82,4 @@ nav a.activo { background: var(--primario); color: var(--primario-txt); }
 .emo-miedo     { --c: var(--emo-miedo); }     .emo-desprecio { --c: var(--emo-desprecio); }
 .relleno[class*=emo-], .chip[class*=emo-] { background: var(--c); }
 .principal[class*=emo-] { border-left-color: var(--c); }
+.aviso { background: #f59e0b22; border: 1px solid #f59e0b; color: var(--texto); padding: 8px 12px; border-radius: 8px; font-size: .9rem; margin: 0 0 14px; }
